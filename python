@@ -1,0 +1,15 @@
+import cupy as cp
+from cupyx import jit
+
+@jit.rawkernel()
+def f(b):
+    laneId = jit.threadIdx.x & 0x1f
+    if laneId == 0:
+        value = cp.int64(100)
+    b[laneId] = value
+
+
+b = cp.empty((32,), dtype=cp.int64)
+f[1, 32](b)
+print(b)
+print(f.cached_code)
